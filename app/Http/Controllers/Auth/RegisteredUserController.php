@@ -31,54 +31,7 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    // public function store(Request $request): RedirectResponse
-    // {
-    //     $request->validate([
-    //         'name' => ['required', 'string', 'max:255'],
-    //         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-    //         'password' => ['required', 'confirmed', Rules\Password::defaults()],
-    //         'tipo_usuario' => ['required','string', 'max:255'],
-    //     ]);
-
-    //     $user = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password),
-    //         'tipo_usuario' => $request->input('tipo_usuario'),
-    //     ]);
-
-    //     event(new Registered($user));
-
-    //     Auth::login($user);
-
-    //     return redirect(route('dashboard', absolute: false));
-    // }
-
-    // public function store(Request $request): RedirectResponse
-    // {
-    //     $request->validate([
-    //         'name' => ['required', 'string', 'max:255'],
-    //         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-    //         'password' => ['required', 'confirmed', Password::defaults()],
-    //         'tipo_usuario' => ['required','string', 'max:255'],
-    //         'empleador_id' => ['nullable', 'exists:'.User::class.',id'], // Asegúrate de que el ID exista en la tabla de usuarios
-    //     ]);
-
-    //     $user = User::create([
-    //         'name' => $request->name,
-    //         'email' => $request->email,
-    //         'password' => Hash::make($request->password),
-    //         'tipo_usuario' => $request->input('tipo_usuario'),
-    //         'empleador_id' => $request->input('empleador_id'), // Asigna el empleador_id si está presente
-    //     ]);
-
-    //     event(new Registered($user));
-
-    //     Auth::login($user);
-
-    //     return redirect(route('dashboard', absolute: false));
-    // }
-
+   
     public function store(Request $request): RedirectResponse
 {
     $validatedData = $request->validate([

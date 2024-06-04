@@ -1,3 +1,6 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+
 <x-guest-layout>
     <form method="POST" action="{{ route('register') }}">
         @csrf
@@ -43,8 +46,9 @@
 
        
         <div class="form-group">
-    <label for="empleado_por_id">Seleccionar Empleador</label>
-    <select name="empleado_por_id" id="empleado_por_id" class="form-control">
+    <label for="empleado_por_id" id="empleado_por_id_label">Seleccionar Empleador</label>
+
+    <select name="empleado_por_id" id="empleado_por_id" class="form-control mt-1 w-full">
         <option value="">Seleccione un Empleador</option>
         @foreach ($empleadores as $empleadorId => $nombreEmpleador)
             <option value="{{ $empleadorId }}">{{ $nombreEmpleador }}</option>
@@ -66,4 +70,45 @@
 
 
     </form>
+
+    <script>
+$(document).ready(function() {
+    // Escucha el evento change en el selector tipo_usuario
+    $('#tipo_usuario').change(function() {
+        var selectedValue = $(this).val();
+        var labelSelector = '#empleado_por_id_label'; // ID del label para referenciarlo
+
+        if (selectedValue === 'empleado' || selectedValue === '') { // Si se selecciona Empleador o está vacío
+            $(labelSelector).show(); // Muestra el label
+            $('#empleado_por_id').show(); // Muestra el selector de Empleador
+        } else { // Para cualquier otro valor, como Empleado
+            $(labelSelector).hide(); // Oculta el label
+            $('#empleado_por_id').hide(); // Oculta el selector de Empleador
+        }
+    });
+
+    // Inicialmente oculta el selector de Empleador y su label si el valor inicial no es Empleador
+    $('#tipo_usuario').trigger('change');
+});
+</script>
+
+
+    {{-- <script>
+$(document).ready(function() {
+    // Escucha el evento change en el selector tipo_usuario
+    $('#tipo_usuario').change(function() {
+        var selectedValue = $(this).val();
+
+        if (selectedValue === 'empleado' || selectedValue === '') { // Si se selecciona Empleador o está vacío
+            $('#empleado_por_id').show(); // Muestra el selector de Empleador
+        } else { // Para cualquier otro valor, como Empleado
+            $('#empleado_por_id').hide(); // Oculta el selector de Empleador
+        }
+    });
+
+    // Inicialmente oculta el selector de Empleador si el valor inicial no es Empleador
+    $('#tipo_usuario').trigger('change');
+});
+</script> --}}
+
 </x-guest-layout>
