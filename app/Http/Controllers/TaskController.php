@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
@@ -63,12 +64,23 @@ public function update(Request $request, $taskId)
 
 
 
+    //     public function index()
+    // {
+    //     $userId = auth()->id(); // Obtiene el ID del usuario autenticado
+    //     $tareas = Task::where('created_by', $userId)->get(); // Filtra las tareas por el usuario autenticado
+    //     return view('empleados.edit_tarea', compact('tareas'));
+    // }
+
         public function index()
     {
         $userId = auth()->id(); // Obtiene el ID del usuario autenticado
-        $tareas = Task::where('created_by', $userId)->get(); // Filtra las tareas por el usuario autenticado
+        $tareas = Task::where('created_by', $userId)
+                    ->with('comments') // Carga los comentarios de cada tarea
+                    ->get(); // Filtra las tareas por el usuario autenticado
+
         return view('empleados.edit_tarea', compact('tareas'));
     }
+
 
     public function toggleCompletion($taskId)
     {
@@ -79,6 +91,59 @@ public function update(Request $request, $taskId)
             'task' => $task
         ]);
     }
+
+
+    public function addComment(Request $request, $taskId)
+    {
+    
+
+        $comment = new Comment([
+            'content' => $request->input('content'),
+            'task_id' => $request->input('task_id'),
+            'user_id' => auth()->id(),
+        ]);
+        $comment->save();
+
+        return back()->with('success', 'Comentario agregado exitosamente.');
+    }
+
+
+
+    public function showComments($taskId)
+    {
+        $task = Task::findOrFail($taskId);
+        $comments = $task->comments;
+
+        return view('comments.show', compact('task', 'comments'));
+    }
+
+    public function updateComment(Request $request, $taskId, $commentId)
+    {
+        $comment = Comment::findOrFail($commentId);
+        $validatedData = $request->validate([
+            'content' => 'required|string|max:65535',
+        ]);
+    
+        $comment->update([
+            'content' => $validatedData['content'],
+            'updated_by' => auth()->id(), // Opcional: Guardar el ID del usuario que realizó la última actualización
+        ]);
+    
+        return back()->with('success', 'Comentario actualizado exitosamente.');
+    }
+    
+
+    public function deleteComment($taskId, $commentId)
+{
+    $comment = Comment::where('task_id', $taskId)->where('id', $commentId)->first();
+    if ($comment) {
+        $comment->delete();
+        return redirect()->route('empleadores.tareas-asignadas', $taskId)->with('success', 'Comentario eliminado exitosamente.');
+    }
+    return redirect()->back()->withErrors(['message' => 'No se encontró el comentario para eliminar.']);
+}
+
+
     
 
 

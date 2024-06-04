@@ -27,6 +27,15 @@ Route::get('/empleadores/tareas-asignadas', [DashboardController::class, 'verTar
 
 
 
+Route::get('/tareas/{taskId}', [TaskController::class, 'show'])->name('tareas.show'); // Ruta para mostrar detalles de una tarea
+Route::post('/tareas/{taskId}/comentar', [TaskController::class, 'addComment'])->name('tareas.addComment'); // Ruta para agregar un comentario a una tarea
+Route::get('/tareas/{taskId}/comentarios', [TaskController::class, 'showComments'])->name('tareas.showComments'); // Ruta para mostrar los comentarios de una tarea
+// Route::get('/tareas/{taskId}/comentarios/{commentId}/editar', [TaskController::class, 'updateComment'])->name('tareas.comment.edit');
+Route::put('/tareas/{taskId}/comentarios/{commentId}', [TaskController::class, 'updateComment'])->name('tareas.comment.update');
+Route::delete('/tareas/{taskId}/comentarios/{commentId}', [TaskController::class, 'deleteComment'])->name('tareas.comment.delete');
+
+
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

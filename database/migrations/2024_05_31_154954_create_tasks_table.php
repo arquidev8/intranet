@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->boolean('completed')->default(false);
+            
             $table->timestamps();
         
             $table->foreign('created_by')->references('id')->on('users');

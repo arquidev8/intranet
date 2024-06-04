@@ -1,6 +1,6 @@
 
 
-<div class="mt-4 container mx-auto px-2 py-2 sm:px-4 md:px-8 w-full lg:w-10/12">
+<div class="mt-4 pb-20 container mx-auto px-2 py-2 sm:px-4 md:px-8 w-full lg:w-10/12">
     <div class="overflow-x-auto">
         <table class="responsive-table w-full table-auto">
             <thead class="bg-blue-800 text-white">
@@ -39,11 +39,35 @@
                                     <button type="submit" class="btn-action bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded mr-2 mt-2">Guardar cambios</button>
                                 </form>
 
-                                <form action="{{ route('tareas.destroy', $tarea->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de querer eliminar esta tarea?');" class="mt-2">
+                              
+                                
+
+                                <form action="{{ route('tareas.destroy', $tarea->id) }}" method="POST" onsubmit="return confirm('¿Estás seguro de querer eliminar esta tarea?');" class="">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn-action bg-red-500 hover:bg-red-700 text-white px-2 py-1 rounded">Eliminar</button>
                                 </form>
+
+                                   <!-- Sección para mostrar comentarios -->
+
+                                 <div class="w-[400px] mt-2">
+                                  
+                                    @if(isset($tarea->comments))
+                                        @if ($tarea->comments->isNotEmpty())
+                                            <h3>Comentarios</h3>
+                                            @foreach ($tarea->comments as $comment)
+                                                <div class="comment">
+                                                    <p><strong>{{ $comment->user->name }}:</strong> {{ $comment->content }}</p>
+                                                    <!-- Aquí puedes incluir opciones para editar o eliminar el comentario si es necesario -->
+                                                </div>
+                                            @endforeach
+                                        @else
+                                            <p>No hay comentarios.</p>
+                                        @endif
+                                    @else
+                                        <p>No hay comentarios.</p>
+                                    @endif
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -90,11 +114,7 @@ function showEditFields(taskId) {
     document.getElementById(`editForm${taskId}`).style.display = 'block';
 }
 
-function redirectToSamePage(event) {
-    event.preventDefault(); // Evita que el formulario se envíe de la manera predeterminada
-    document.getElementById(`editForm{{ $tarea->id }}`).submit(); // Envía el formulario
-    window.location.href = "{{ route('tareas.edit') }}"; // Redirige a la página de lista de tareas
-}
+
 
 function showEditFields(taskId) {
     document.getElementById(`editForm${taskId}`).style.display = 'block';
