@@ -41,10 +41,10 @@
                     @foreach($tareas as $tarea)
                         <div class="card mb-6 bg-gray-100 dark:bg-gray-700 p-4 rounded shadow-md">
                             <div class="card-body">
-                                <h5 class="card-title text-xl font-bold mb-5">{{ $tarea->title }}</h5>
-                                <p class="card-text mb-4">{{ $tarea->description }}</p>
-                                 <p class="card-text mb-4">
-                                    Estado: @if($tarea->completed) Completada @else En Progreso @endif
+                                <h5 class="card-title text-xl font-bold mb-5">Título: {{ $tarea->title }}</h5>
+                                <p class="card-text mb-4"><span class="font-bold">Descripción:</span> {{ $tarea->description }}</p>
+                                 <p class="card-text font-bold">
+                                    Estado: @if($tarea->completed) <p class="bg-green-400">Completada</p> @else <p class="bg-yellow-400">En Progreso</p> @endif
                                 </p>
 
                                 <!-- Mostrar comentarios -->
@@ -81,7 +81,7 @@
                                     <input type="hidden" name="task_id" value="{{ $tarea->id }}">
                                     <input type="hidden" name="user_id" value="{{ auth()->id() }}">
                                     <div class="mb-4">
-                                        <label for="commentContent" class="block text-gray-700 text-sm font-bold mb-2">Comentario:</label>
+                                        <label for="commentContent" class="block text-gray-700 text-md font-bold mb-2 mt-5">Comentarios:</label>
                                         <textarea id="commentContent" name="content" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" rows="3"></textarea>
                                     </div>
                                     <div class="flex items-center justify-between">

@@ -15,7 +15,8 @@ class TaskController extends Controller
         'description' => $request->input('description'),
         'created_by' => auth()->id(), // El ID del usuario autenticado
         'visible_para' => auth()->user()->empleador_id, // Usa el empleador_id del usuario autenticado
-        'completed' => $request->input('completed') === '1', // Convierte el valor del checkbox a booleano
+        'completed' => $request->input('completed') === '1',
+        'duration' => $request->input('duration'),  // Convierte el valor del checkbox a booleano
     ]);
     $task->save();
 
@@ -36,10 +37,12 @@ public function update(Request $request, $taskId)
         'title' => 'required|string|max:255',
         'description' => 'nullable|string|max:65535',
         'completed' => 'nullable|boolean',
+        'duration' => ['nullable', 'string', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
     ]);
 
     // Encontrar la tarea o lanzar una excepción si no existe
     $task = Task::findOrFail($taskId);
+    
 
     // Actualizar la tarea con los datos validados
     $task->update([
@@ -47,6 +50,8 @@ public function update(Request $request, $taskId)
         'description' => $validatedData['description'],
         'completed' => $validatedData['completed'] ?? false,
         'updated_by' => auth()->id(),
+        'duration' => $validatedData['duration'], 
+        // 'updated_by' => auth()->id(),
     ]);
 
     // Redirigir con un mensaje de éxito

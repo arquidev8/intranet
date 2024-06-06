@@ -14,7 +14,8 @@ class Task extends Model
         'description',
         'completed',
         'created_by',
-        'visible_para' // Agrega este campo para indicar el ID del empleador
+        'visible_para',
+        'duration' // Agrega este campo para indicar el ID del empleador
     ];
 
 

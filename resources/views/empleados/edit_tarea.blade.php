@@ -1,6 +1,6 @@
 
 
-<div class="mt-4 pb-20 container mx-auto px-2 py-2 sm:px-4 md:px-8 w-full lg:w-10/12">
+<div class="mt-4 pb-20 container mx-auto px-2 py-2 sm:px-4 md:px-8 w-full lg:w-11/12">
     <div class="overflow-x-auto">
         <table class="responsive-table w-full table-auto">
             <thead class="bg-blue-800 text-white">
@@ -8,6 +8,7 @@
                     <th class="px-2 py-1">Título</th>
                     <th class="px-2 py-1">Descripción</th>
                     <th class="px-2 py-1">Acciones</th>
+                    
                 </tr>
             </thead>
             <tbody class="divide-y divide-gray-200">
@@ -16,7 +17,9 @@
                         <td class="px-2 py-1">{{ $tarea->title }}</td>
                         <td class="px-2 py-1">{{ $tarea->description }}</td>
                         <td class="px-2 py-1">
-                            <div class="flex flex-wrap justify-between items-center gap-3">
+                            <div class="flex flex-wrap justify-between items-center gap-3 ">
+                                <h3>Horas:</h3>
+                                <span class="font-semibold w-[120px]">{{ $tarea->duration?? 'N/A' }}</span> <!-- Muestra la duración actual -->
                                 <button id="completeButton-{{ $tarea->id }}" onclick="toggleTaskCompletion({{ $tarea->id }}, {{ $tarea->completed ? 0 : 1 }})"
                                     class="btn-action {{ $tarea->completed ? 'bg-green-500 text-white' : 'bg-gray-400 text-black' }} hover:bg-green-700 hover:text-white px-2 py-1 rounded">
                                     {{ $tarea->completed ? 'Completada' : 'En Progreso' }}
@@ -33,8 +36,11 @@
                                     <label for="description">Descripción:</label>
                                     <textarea id="description{{ $tarea->id }}" name="description" rows="3" class="w-full p-2 mb-2 border border-gray-300 rounded">{{ $tarea->description }}</textarea>
 
-                                    <input type="checkbox" id="completed{{ $tarea->id }}" name="completed" value="1" {{ $tarea->completed ? 'checked' : '' }}>
-                                    <label for="completed{{ $tarea->id }}">Completada</label>
+                                    {{-- <input type="checkbox" id="completed{{ $tarea->id }}" name="completed" value="1" {{ $tarea->completed ? 'checked' : '' }}>
+                                    <label for="completed{{ $tarea->id }}">Completada</label> --}}
+       
+                                    <input type="time" id="duration{{ $tarea->id }}" name="duration" min="0" value="{{ $tarea->duration?? '' }}" required>
+                                     <label for="duration">Duración (horas):</label>
 
                                     <button type="submit" class="btn-action bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded mr-2 mt-2">Guardar cambios</button>
                                 </form>
@@ -50,7 +56,7 @@
 
                                    <!-- Sección para mostrar comentarios -->
 
-                                 <div class="w-[400px] mt-2">
+                                 <div class="w-[200px] mt-2">
                                   
                                     @if(isset($tarea->comments))
                                         @if ($tarea->comments->isNotEmpty())
