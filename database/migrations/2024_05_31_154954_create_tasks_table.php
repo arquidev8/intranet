@@ -18,7 +18,9 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->boolean('completed')->default(false);
-            $table->integer('duration')->nullable();
+            // $table->integer('duration')->nullable();
+            $table->decimal('duration', 4, 2)->nullable();
+
             
             $table->timestamps();
         

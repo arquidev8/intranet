@@ -38,18 +38,18 @@
             <x-input-label for="tipo_usuario" :value="__('Tipo de Usuario')" />
             <select id="tipo_usuario" class="block mt-1 w-full" name="tipo_usuario" required>
                 <option value="">Seleccione...</option>
-                <option value="empleador">Empleador</option>
-                <option value="empleado">Empleado</option>
+                <option value="empleador">Empresa</option>
+                <option value="empleado">Profesional</option>
             </select>
             <x-input-error :messages="$errors->get('tipo_usuario')" class="mt-2" />
         </div>
 
        
         <div class="form-group">
-    <label for="empleado_por_id" id="empleado_por_id_label">Seleccionar Empleador</label>
+    <label for="empleado_por_id" id="empleado_por_id_label">Seleccionar Empresa</label>
 
     <select name="empleado_por_id" id="empleado_por_id" class="form-control mt-1 w-full">
-        <option value="">Seleccione un Empleador</option>
+        <option value="">Seleccione una Empresa</option>
         @foreach ($empleadores as $empleadorId => $nombreEmpleador)
             <option value="{{ $empleadorId }}">{{ $nombreEmpleador }}</option>
         @endforeach

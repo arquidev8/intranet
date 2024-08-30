@@ -24,9 +24,10 @@ class User extends Authenticatable
         'email',
         'password',
         'tipo_usuario',
-        'empleador_id', // Asegúrate de incluir este campo
+        'empleador_id',
+        'signature', 
     ];
-    
+
 
 
     /**
@@ -52,28 +53,54 @@ class User extends Authenticatable
         ];
     }
 
-     // Un empleador puede tener muchos empleados
-     public function empleados():?HasMany
-     {
-         if ($this->tipo_usuario!== 'empleado') {
-             return null;
-         }
- 
-         // Aquí asumimos que todos los usuarios pueden tener empleados, incluso si son empleados.
-         // Deberías ajustar esta lógica según tus requisitos específicos.
-         return $this->hasMany(User::class, 'empleado_id', 'id');
-     }
- 
-     // Un empleado tiene un único empleador
-     public function empleador():?BelongsTo
-     {
-         if ($this->tipo_usuario!== 'empleado') {
-             return null;
-         }
- 
-         // Aquí asumimos que todos los usuarios pueden tener un empleador, incluso si son empleadores.
-         // Deberías ajustar esta lógica según tus requisitos específicos.
-         return $this->belongsTo(User::class, 'empleador_id', 'id');
-     }
-     
+    //  // Un empleador puede tener muchos empleados
+    //  public function empleados():?HasMany
+    //  {
+    //      if ($this->tipo_usuario!== 'empleado') {
+    //          return null;
+    //      }
+
+    //      // Aquí asumimos que todos los usuarios pueden tener empleados, incluso si son empleados.
+    //      // Deberías ajustar esta lógica según tus requisitos específicos.
+    //      return $this->hasMany(User::class, 'empleado_id', 'id');
+    //  }
+
+    //  // Un empleado tiene un único empleador
+    //  public function empleador():?BelongsTo
+    //  {
+    //      if ($this->tipo_usuario!== 'empleado') {
+    //          return null;
+    //      }
+
+    //      // Aquí asumimos que todos los usuarios pueden tener un empleador, incluso si son empleadores.
+    //      // Deberías ajustar esta lógica según tus requisitos específicos.
+    //      return $this->belongsTo(User::class, 'empleador_id', 'id');
+    //  }
+
+
+
+
+
+    // Un empleador puede tener muchos empleados
+    public function empleados()
+    {
+        return $this->hasMany(User::class, 'empleador_id');
+    }
+
+    // Un empleado tiene un único empleador
+    public function empleador()
+    {
+        return $this->belongsTo(User::class, 'empleador_id');
+    }
+
+    public function workHours()
+    {
+        return $this->hasMany(WorkHours::class);
+    }
+
+
+    public function signature()
+    {
+        return $this->hasOne(UserSignature::class);
+    }
 }

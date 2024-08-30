@@ -2,109 +2,197 @@
 
 namespace App\Http\Controllers;
 
+use Log;
 use App\Models\Task;
+use App\Models\User;
 use App\Models\Comment;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use App\Models\WorkHours;
 
 class TaskController extends Controller
 {
-    public function store(Request $request)
-{
-    $task = new Task([
-        'title' => $request->input('title'),
-        'description' => $request->input('description'),
-        'created_by' => auth()->id(), // El ID del usuario autenticado
-        'visible_para' => auth()->user()->empleador_id, // Usa el empleador_id del usuario autenticado
-        'completed' => $request->input('completed') === '1',
-        'duration' => $request->input('duration'),  // Convierte el valor del checkbox a booleano
-    ]);
-    $task->save();
+    // public function index()
+    // {
+    //     $user = auth()->user();
+    //     $empleadorId = $user->empleador_id;
 
-    // Si el usuario es un empleado, también haz visible la tarea para su empleador
-    if (auth()->user()->tipo_usuario == 'empleado') {
-        $empleadoPorId = auth()->user()->empleador_id;
-        $task->update(['visible_para' => $empleadoPorId]);
+    //     $tareas = Task::where(function($query) use ($user, $empleadorId) {
+    //                 $query->where('created_by', $user->id)
+    //                       ->orWhere('visible_para', $empleadorId);
+    //             })
+    //             ->with('comments')
+    //             ->get();
+
+    //     return view('empleados.edit_tarea', compact('tareas'));
+    // }
+
+    public function index()
+    {
+        $user = auth()->user();
+        
+        if ($user->tipo_usuario === 'empleador') {
+            // Obtener los IDs de los empleados asignados a este empleador
+            $empleadosIds = User::where('empleador_id', $user->id)->pluck('id');
+            
+            // Obtener las tareas de estos empleados
+            $tareas = Task::whereIn('created_by', $empleadosIds)->with('comments')->get();
+        } else {
+            // Si es un empleado, solo obtener sus propias tareas
+            $tareas = Task::where('created_by', $user->id)->with('comments')->get();
+        }
+    
+        // Preparar datos para el gráfico
+        $taskData = $tareas->groupBy(function($tarea) {
+            return $tarea->created_at->format('Y-m');
+        })->map->count()->toArray();
+    
+        return view('empleados.edit_tarea', compact('tareas', 'taskData'));
+    }
+
+    
+    // public function store(Request $request)
+    // {
+    //     $validatedData = $request->validate([
+    //         'title' => 'required|string|max:255',
+    //         'description' => 'nullable|string',
+    //         'duration' => 'required|numeric|min:0',
+    //         'completed' => 'nullable|boolean',
+    //     ]);
+
+    //     $task = new Task($validatedData);
+    //     $task->created_by = auth()->id();
+    //     $task->visible_para = auth()->user()->empleador_id;
+    //     $task->save();
+
+    //     return back()->with('success', 'Tarea creada exitosamente.');
+    // }
+
+    
+// public function store(Request $request)
+// {
+//     $validatedData = $request->validate([
+//         'title' => 'required|string|max:255',
+//         'description' => 'nullable|string',
+//         'duration' => 'nullable|numeric|min:0',
+//         'completed' => 'boolean',
+//         // ... otras validaciones ...
+//     ]);
+
+//     $task = Task::create([
+//         'created_by' => Auth::id(),
+//         'title' => $validatedData['title'],
+//         'description' => $validatedData['description'],
+//         'duration' => $validatedData['duration'],
+//         'completed' => $validatedData['completed'] ?? false,
+//         // ... otros campos ...
+//     ]);
+
+//     if ($validatedData['duration']) {
+//         WorkHours::create([
+//             'user_id' => Auth::id(),
+//             'work_date' => now()->toDateString(),
+//             'hours_worked' => $validatedData['duration'],
+//             'approved' => false,
+//         ]);
+//     }
+
+//     return response()->json($task, 201);
+// }
+
+
+public function store(Request $request)
+{
+    $validatedData = $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'duration' => 'nullable|numeric|min:0',
+        'completed' => 'boolean',
+        // ... otras validaciones ...
+    ]);
+
+    $task = Task::create([
+        'created_by' => Auth::id(),
+        'title' => $validatedData['title'],
+        'description' => $validatedData['description'],
+        'duration' => $validatedData['duration'],
+        'completed' => $validatedData['completed'] ?? false,
+        // ... otros campos ...
+    ]);
+
+    if ($validatedData['duration']) {
+        WorkHours::create([
+            'user_id' => Auth::id(),
+            'work_date' => now()->toDateString(),
+            'hours_worked' => $validatedData['duration'],
+            'approved' => false,
+        ]);
     }
 
     return back()->with('success', 'Tarea creada exitosamente.');
 }
 
 
-public function update(Request $request, $taskId)
-{
-    // Validar la solicitud antes de actualizar
-    $validatedData = $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'nullable|string|max:65535',
-        'completed' => 'nullable|boolean',
-        'duration' => ['nullable', 'string', 'regex:/^([01]\d|2[0-3]):[0-5]\d$/'],
-    ]);
-
-    // Encontrar la tarea o lanzar una excepción si no existe
-    $task = Task::findOrFail($taskId);
-    
-
-    // Actualizar la tarea con los datos validados
-    $task->update([
-        'title' => $validatedData['title'],
-        'description' => $validatedData['description'],
-        'completed' => $validatedData['completed'] ?? false,
-        'updated_by' => auth()->id(),
-        'duration' => $validatedData['duration'], 
-        // 'updated_by' => auth()->id(),
-    ]);
-
-    // Redirigir con un mensaje de éxito
-    return back()->with('success', 'Tarea actualizada exitosamente.');
-}
-
-
-    public function destroy($taskId)
+    public function update(Request $request, $taskId)
     {
-        $task = Task::findOrFail($taskId);
-        $task->delete();
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string|max:65535',
+            'completed' => 'nullable|boolean',
+            'duration' => 'nullable|numeric|min:0',
+        ]);
 
-        return back()->with('success', 'Tarea eliminada exitosamente.');
+        $task = Task::findOrFail($taskId);
+        $task->update($validatedData);
+
+        return back()->with('success', 'Tarea actualizada exitosamente.');
     }
 
-
-
-    //     public function index()
+    // public function destroy($id)
     // {
-    //     $userId = auth()->id(); // Obtiene el ID del usuario autenticado
-    //     $tareas = Task::where('created_by', $userId)->get(); // Filtra las tareas por el usuario autenticado
-    //     return view('empleados.edit_tarea', compact('tareas'));
+    //     $task = Task::findOrFail($id);
+    //     $task->comments()->delete();
+    //     $task->delete();
+    //     return redirect()->back()->with('success', 'Tarea eliminada con éxito');
     // }
 
-        public function index()
+        public function destroy($taskId)
     {
-        $userId = auth()->id(); // Obtiene el ID del usuario autenticado
-        $tareas = Task::where('created_by', $userId)
-                    ->with('comments') // Carga los comentarios de cada tarea
-                    ->get(); // Filtra las tareas por el usuario autenticado
+        $task = Task::findOrFail($taskId);
+        
+        WorkHours::where([
+            'user_id' => $task->created_by,
+            'work_date' => $task->created_at->toDateString(),
+        ])->delete();
 
-        return view('empleados.edit_tarea', compact('tareas'));
+        $task->delete();
+
+        return response()->json(null, 204);
     }
+
 
 
     public function toggleCompletion($taskId)
     {
-        $task = Task::find($taskId);
-        $task->update(['completed' => request()->input('completed')]);
-        return response()->json([
-            'success' => true,
-            'task' => $task
-        ]);
+        $task = Task::findOrFail($taskId);
+        $task->completed = !$task->completed;
+        $task->save();
+        return response()->json(['success' => true, 'task' => $task]);
     }
+
+
 
 
     public function addComment(Request $request, $taskId)
     {
-    
+        $validatedData = $request->validate([
+            'content' => 'required|string|max:65535',
+        ]);
 
         $comment = new Comment([
-            'content' => $request->input('content'),
-            'task_id' => $request->input('task_id'),
+            'content' => $validatedData['content'],
+            'task_id' => $taskId,
             'user_id' => auth()->id(),
         ]);
         $comment->save();
@@ -114,43 +202,28 @@ public function update(Request $request, $taskId)
 
 
 
-    public function showComments($taskId)
-    {
-        $task = Task::findOrFail($taskId);
-        $comments = $task->comments;
-
-        return view('comments.show', compact('task', 'comments'));
-    }
 
     public function updateComment(Request $request, $taskId, $commentId)
     {
-        $comment = Comment::findOrFail($commentId);
         $validatedData = $request->validate([
             'content' => 'required|string|max:65535',
         ]);
-    
+
+        $comment = Comment::findOrFail($commentId);
         $comment->update([
             'content' => $validatedData['content'],
-            'updated_by' => auth()->id(), // Opcional: Guardar el ID del usuario que realizó la última actualización
+            'updated_by' => auth()->id(),
         ]);
-    
+
         return back()->with('success', 'Comentario actualizado exitosamente.');
     }
-    
+
+
 
     public function deleteComment($taskId, $commentId)
-{
-    $comment = Comment::where('task_id', $taskId)->where('id', $commentId)->first();
-    if ($comment) {
+    {
+        $comment = Comment::where('task_id', $taskId)->where('id', $commentId)->firstOrFail();
         $comment->delete();
-        return redirect()->route('empleadores.tareas-asignadas', $taskId)->with('success', 'Comentario eliminado exitosamente.');
+        return back()->with('success', 'Comentario eliminado exitosamente.');
     }
-    return redirect()->back()->withErrors(['message' => 'No se encontró el comentario para eliminar.']);
-}
-
-
-    
-
-
-
 }

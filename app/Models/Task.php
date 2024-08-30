@@ -19,6 +19,17 @@ class Task extends Model
     ];
 
 
+    protected $casts = [
+        'completed' => 'boolean',
+        'duration' => 'float',
+    ];
+
+    public function setDurationAttribute($value)
+    {
+        $this->attributes['duration'] = is_numeric($value) ? $value : null;
+    }
+
+
         public function createdBy()
     {
         return $this->belongsTo(User::class, 'created_by');

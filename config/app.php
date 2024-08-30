@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Intranet'),
 
     /*
     |--------------------------------------------------------------------------
@@ -79,6 +79,7 @@ return [
     */
 
     'locale' => env('APP_LOCALE', 'en'),
+    'locale' => 'es',
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
@@ -103,6 +104,7 @@ return [
         ...array_filter(
             explode(',', env('APP_PREVIOUS_KEYS', ''))
         ),
+        
     ],
 
     /*

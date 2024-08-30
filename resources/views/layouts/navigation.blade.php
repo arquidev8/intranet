@@ -16,6 +16,22 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('chat')" :active="request()->routeIs('chatify')">
+                        {{ __('Chat') }}
+                    </x-nav-link>
+                </div>
+                   <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    @if(auth()->user()->tipo_usuario === 'empleador')
+                        <x-nav-link :href="route('empleadores.tareas-asignadas')" :active="request()->routeIs('empleadores.tareas-asignadas')">
+                            {{ __('Registrar Horas') }}
+                        </x-nav-link>
+                    @else
+                        <x-nav-link :href="route('empleado.registrar-horas')" :active="request()->routeIs('empleado.registrar-horas')">
+                            {{ __('Registrar Horas') }}
+                        </x-nav-link>
+                    @endif
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
